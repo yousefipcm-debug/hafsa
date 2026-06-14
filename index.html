@@ -6,6 +6,11 @@
 <title>GESTION DU PROJET</title>
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="icon.svg">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4f46e5">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Gestion Projet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -146,6 +151,7 @@ textarea.form-control{resize:vertical}
   <div class="topbar">
     <div class="topbar-title" id="page-title">Tableau de bord</div>
     <div class="topbar-right">
+      <button id="btn-install" class="btn btn-primary btn-sm" style="display:none" onclick="installApp()"><i class="ti ti-download"></i> Installer l'app</button>
       <span class="badge-dot"></span>
       <span style="font-size:12px;color:var(--text2)">Projet actif</span>
     </div>
@@ -806,6 +812,28 @@ function initYears(){
 loadData();
 initYears();
 renderEmployes(); renderContrat(); renderPhases(); renderMateriaux(); updateDashboard();
+
+// ===== PWA =====
+let deferredPrompt = null;
+if("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  });
+}
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById("btn-install").style.display = "inline-flex";
+});
+window.addEventListener("appinstalled", () => {
+  document.getElementById("btn-install").style.display = "none";
+  showToast("Application install00e9e avec succ00e8s !");
+});
+function installApp(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+}
 </script>
 </body>
 </html>
